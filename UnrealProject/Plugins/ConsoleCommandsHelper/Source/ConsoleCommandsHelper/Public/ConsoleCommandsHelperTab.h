@@ -7,7 +7,7 @@ struct FConsoleCommandData
 {
 	bool Enabled;
 	FString Data;
-	FString Input;
+	float Input;
 };
 
 class SConsoleCommandsHelperTab : public SCompoundWidget

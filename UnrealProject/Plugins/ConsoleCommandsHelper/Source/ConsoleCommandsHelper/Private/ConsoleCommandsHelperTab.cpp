@@ -2,8 +2,8 @@
 
 #include "LevelEditorSubsystem.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Widgets/Input/SSpinBox.h"
 #include "Widgets/Layout/SScrollBox.h"
-#include "Widgets/Text/SInlineEditableTextBlock.h"
 
 void SConsoleCommandsHelperTab::Construct(const FArguments& InArgs)
 {
@@ -15,7 +15,7 @@ void SConsoleCommandsHelperTab::Construct(const FArguments& InArgs)
 	TSharedPtr<FConsoleCommandData> NewCommandData = MakeShareable(new FConsoleCommandData());
 	NewCommandData.Get()->Enabled = true;
 	NewCommandData.Get()->Data = "stat fps";
-	NewCommandData.Get()->Input = "";
+	NewCommandData.Get()->Input = 0.0f;
 	ConsoleCommandsData.Add(NewCommandData);
 	
 	ChildSlot
@@ -47,14 +47,15 @@ void SConsoleCommandsHelperTab::Construct(const FArguments& InArgs)
 				.Text(FText::FromString("Execute"))
 				.OnClicked(FOnClicked::CreateLambda([this]
 				{
-					UE_LOG(LogTemp, Warning, TEXT("Sylen : Execute All Commands"));
 					UWorld* World = GEditor->GetEditorSubsystem<ULevelEditorSubsystem>()->GetWorld();
 					for(auto CommandData : ConsoleCommandsData)
 					{
 						if(!CommandData->Enabled)
 							continue;
 						
-						FString Command = CommandData->Data.Append(CommandData->Input);
+						FString Command = CommandData->Data;
+						if(CommandData->Input != 0.0f)
+							Command.Append(FString::SanitizeFloat(CommandData->Input));
 						UKismetSystemLibrary::ExecuteConsoleCommand(World, *Command);
 					}
 					
@@ -74,7 +75,7 @@ void SConsoleCommandsHelperTab::Construct(const FArguments& InArgs)
 					TSharedPtr<FConsoleCommandData> NewCommandData = MakeShareable(new FConsoleCommandData());
 					NewCommandData.Get()->Enabled = true;
 					NewCommandData.Get()->Data = "Some Command";
-					NewCommandData.Get()->Input = "1";
+					NewCommandData.Get()->Input = 1.0f;
 					ConsoleCommandsData.Add(NewCommandData);
 					ListViewWidget->RequestListRefresh();
 					return FReply::Handled();
@@ -89,7 +90,6 @@ void SConsoleCommandsHelperTab::Construct(const FArguments& InArgs)
 				.Text(FText::FromString("Save"))
 				.OnClicked(FOnClicked::CreateLambda([]
 				{
-					UE_LOG(LogTemp, Warning, TEXT("Sylen : Save Commands"));
 					return FReply::Handled();
 				}))
 			]
@@ -102,7 +102,6 @@ void SConsoleCommandsHelperTab::Construct(const FArguments& InArgs)
 				.Text(FText::FromString("Load"))
 				.OnClicked(FOnClicked::CreateLambda([]
 				{
-					UE_LOG(LogTemp, Warning, TEXT("Sylen : Load Commands"));
 					return FReply::Handled();
 				}))
 			]
@@ -162,17 +161,38 @@ TSharedRef<ITableRow> SConsoleCommandsHelperTab::OnGenerateRowForList(TSharedPtr
 				.Text(FText::FromString(*Item.Get()->Data))
 			]
 
-			// Input data
-			// +SHorizontalBox::Slot()
-			// .HAlign(HAlign_Left)
-			// .VAlign(VAlign_Center)
-			// .FillWidth(.05f)
-			// [
-			// 	SNew(SInlineEditableTextBlock)
-			// 	.OnTextCommitted_Lambda([Item](const FText& CommitedText, ETextCommit::Type TyepTextCommit)
-			// 	{
-			// 		Item.Get()->Data = CommitedText.ToString();
-			// 	})
-			// ]
+			// Command Input Value
+			+SHorizontalBox::Slot()
+			.HAlign(HAlign_Left)
+			.VAlign(VAlign_Center)
+			.FillWidth(0.05f)
+			[
+				SNew(SSpinBox<float>)
+				.EnableSlider(false)
+				.Value(0.0f)
+				.OnValueChanged_Lambda([Item, this](float Value)
+				{
+					Item.Get()->Input = Value;
+			 		ListViewWidget->RequestListRefresh();
+				})
+			]
+			
+			// Remove the command from the list
+			+SHorizontalBox::Slot()
+			.HAlign(HAlign_Left)
+			.VAlign(VAlign_Center)
+			.FillWidth(0.05f)
+			[
+				SNew(SButton)
+				.Text(FText::FromString("Remove"))
+				.OnClicked(FOnClicked::CreateLambda([Item, this]
+				{
+					if(ConsoleCommandsData.Contains(Item))
+						ConsoleCommandsData.Remove(Item);
+
+					ListViewWidget->RequestListRefresh();
+					return FReply::Handled();
+				}))
+			]
 		];
 }
