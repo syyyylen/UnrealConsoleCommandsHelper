@@ -1,0 +1,24 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "ConsoleCommandsHelper",
+	"Description": "A simple plugin to facilitate recurrent console commands usages",
+	"Category": "Other",
+	"CreatedBy": "Jules Vannier",
+	"CreatedByURL": "",
+	"DocsURL": "",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"CanContainContent": true,
+	"IsBetaVersion": false,
+	"IsExperimentalVersion": false,
+	"Installed": false,
+	"Modules": [
+		{
+			"Name": "ConsoleCommandsHelper",
+			"Type": "Editor",
+			"LoadingPhase": "Default"
+		}
+	]
+}
