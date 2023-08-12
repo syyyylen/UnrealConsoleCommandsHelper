@@ -104,6 +104,7 @@ void SConsoleCommandsHelperTab::Construct(const FArguments& InArgs)
 										[
 											SNew(SButton)
 											.Text(FText::FromString("Validate"))
+											.HAlign(HAlign_Center)
 											.OnClicked_Lambda([&PopUpWindow, &NewData, this]
 											{
 												AddConsoleCommand(PopUpWindow, NewData);
@@ -172,7 +173,7 @@ TSharedRef<ITableRow> SConsoleCommandsHelperTab::OnGenerateRowForList(TSharedPtr
 			+SHorizontalBox::Slot()
 			.HAlign(HAlign_Left)
 			.VAlign(VAlign_Center)
-			.FillWidth(.05f)
+			.FillWidth(.1f)
 			[
 				SNew(SCheckBox)
 				.IsChecked_Lambda([Item]
@@ -191,7 +192,7 @@ TSharedRef<ITableRow> SConsoleCommandsHelperTab::OnGenerateRowForList(TSharedPtr
 			+SHorizontalBox::Slot()
 			.HAlign(HAlign_Left)
 			.VAlign(VAlign_Center)
-			.FillWidth(.05f)
+			.FillWidth(.45f)
 			[
 				SNew(STextBlock)
 				.Text(FText::FromString(*Item->Data))
@@ -201,7 +202,7 @@ TSharedRef<ITableRow> SConsoleCommandsHelperTab::OnGenerateRowForList(TSharedPtr
 			+SHorizontalBox::Slot()
 			.HAlign(HAlign_Left)
 			.VAlign(VAlign_Center)
-			.FillWidth(0.05f)
+			.FillWidth(0.15)
 			[
 				SNew(SSpinBox<float>)
 				.EnableSlider(false)
@@ -217,7 +218,7 @@ TSharedRef<ITableRow> SConsoleCommandsHelperTab::OnGenerateRowForList(TSharedPtr
 			+SHorizontalBox::Slot()
 			.HAlign(HAlign_Left)
 			.VAlign(VAlign_Center)
-			.FillWidth(0.05f)
+			.FillWidth(0.25f)
 			[
 				SNew(SButton)
 				.Text(FText::FromString("Remove"))
