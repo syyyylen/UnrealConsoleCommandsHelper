@@ -22,6 +22,7 @@ public:
 
 private:
 	TSharedRef<ITableRow> OnGenerateRowForList(TSharedPtr<FConsoleCommandData> Item, const TSharedRef<STableViewBase>& OwnerTable);
+	void AddConsoleCommand(TSharedPtr<SWindow> PopUpWindow, FString NewData);
 	
 	TArray<TSharedPtr<FConsoleCommandData>> ConsoleCommandsData;
 	TSharedPtr<SListView<TSharedPtr<FConsoleCommandData>>> ListViewWidget;

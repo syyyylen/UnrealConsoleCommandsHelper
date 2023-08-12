@@ -13,9 +13,9 @@ void SConsoleCommandsHelperTab::Construct(const FArguments& InArgs)
 	TitleTextFont.Size = 20;
 
 	TSharedPtr<FConsoleCommandData> NewCommandData = MakeShareable(new FConsoleCommandData());
-	NewCommandData.Get()->Enabled = true;
-	NewCommandData.Get()->Data = "stat fps";
-	NewCommandData.Get()->Input = 0.0f;
+	NewCommandData->Enabled = true;
+	NewCommandData->Data = "stat fps";
+	NewCommandData->Input = 0.0f;
 	ConsoleCommandsData.Add(NewCommandData);
 	
 	ChildSlot
@@ -71,13 +71,49 @@ void SConsoleCommandsHelperTab::Construct(const FArguments& InArgs)
 				.Text(FText::FromString("Add"))
 				.OnClicked(FOnClicked::CreateLambda([this]
 				{
-					UE_LOG(LogTemp, Warning, TEXT("Sylen : Add Command"));
-					TSharedPtr<FConsoleCommandData> NewCommandData = MakeShareable(new FConsoleCommandData());
-					NewCommandData.Get()->Enabled = true;
-					NewCommandData.Get()->Data = "Some Command";
-					NewCommandData.Get()->Input = 1.0f;
-					ConsoleCommandsData.Add(NewCommandData);
-					ListViewWidget->RequestListRefresh();
+					TSharedPtr<SConsoleCommandsHelperTab> ThisShared = SharedThis(this);
+					FString NewData = "";
+
+					TSharedPtr<SWindow> PopUpWindow =
+									SNew(SWindow)
+									.Title(FText::FromString("Add Command"))
+									.SizingRule(ESizingRule::Autosized)
+									.Content()
+									[
+										SNew(SVerticalBox)
+										
+										+SVerticalBox::Slot()
+										[
+											SNew(SEditableTextBox)
+											.HintText(FText::FromString("New command"))
+											.OnTextChanged_Lambda([&NewData](const FText& NewText)
+											{
+												NewData = NewText.ToString();
+											})
+											.OnTextCommitted_Lambda([&PopUpWindow, &NewData, this](const FText& NewText, ETextCommit::Type CommitType)
+											{
+												NewData = NewText.ToString();
+												if(CommitType == ETextCommit::Type::OnEnter)
+													AddConsoleCommand(PopUpWindow, NewData);
+											})
+										]
+										
+										+SVerticalBox::Slot()
+										.AutoHeight()
+										.VAlign(VAlign_Center)
+										[
+											SNew(SButton)
+											.Text(FText::FromString("Validate"))
+											.OnClicked_Lambda([&PopUpWindow, &NewData, this]
+											{
+												AddConsoleCommand(PopUpWindow, NewData);
+												return FReply::Handled();
+											})
+										]
+									];
+					
+					FSlateApplication::Get().AddModalWindow(PopUpWindow.ToSharedRef(), ThisShared.ToSharedRef(), false);
+
 					return FReply::Handled();
 				}))
 			]
@@ -142,12 +178,12 @@ TSharedRef<ITableRow> SConsoleCommandsHelperTab::OnGenerateRowForList(TSharedPtr
 				.IsChecked_Lambda([Item]
 				{
 					ECheckBoxState CheckBoxState;
-					Item.Get()->Enabled ? CheckBoxState = ECheckBoxState::Checked : CheckBoxState = ECheckBoxState::Unchecked;
+					Item->Enabled ? CheckBoxState = ECheckBoxState::Checked : CheckBoxState = ECheckBoxState::Unchecked;
 					return CheckBoxState;
 				})
 				.OnCheckStateChanged_Lambda([Item](ECheckBoxState CheckBoxState)
 				{
-					Item.Get()->Enabled = CheckBoxState == ECheckBoxState::Checked;
+					Item->Enabled = CheckBoxState == ECheckBoxState::Checked;
 				})
 			]
 
@@ -158,7 +194,7 @@ TSharedRef<ITableRow> SConsoleCommandsHelperTab::OnGenerateRowForList(TSharedPtr
 			.FillWidth(.05f)
 			[
 				SNew(STextBlock)
-				.Text(FText::FromString(*Item.Get()->Data))
+				.Text(FText::FromString(*Item->Data))
 			]
 
 			// Command Input Value
@@ -172,7 +208,7 @@ TSharedRef<ITableRow> SConsoleCommandsHelperTab::OnGenerateRowForList(TSharedPtr
 				.Value(0.0f)
 				.OnValueChanged_Lambda([Item, this](float Value)
 				{
-					Item.Get()->Input = Value;
+					Item->Input = Value;
 			 		ListViewWidget->RequestListRefresh();
 				})
 			]
@@ -195,4 +231,20 @@ TSharedRef<ITableRow> SConsoleCommandsHelperTab::OnGenerateRowForList(TSharedPtr
 				}))
 			]
 		];
+}
+
+void SConsoleCommandsHelperTab::AddConsoleCommand(TSharedPtr<SWindow> PopUpWindow, FString NewData)
+{
+	if(!NewData.IsEmpty())
+	{
+		TSharedPtr<FConsoleCommandData> NewCommandData = MakeShareable(new FConsoleCommandData());
+		NewCommandData->Data = NewData;
+		NewCommandData->Input = 0.0f;
+		NewCommandData->Enabled = true;
+													
+		ConsoleCommandsData.Add(NewCommandData);
+		ListViewWidget->RequestListRefresh();
+	}
+													
+	FSlateApplication::Get().RequestDestroyWindow(PopUpWindow.ToSharedRef());
 }
