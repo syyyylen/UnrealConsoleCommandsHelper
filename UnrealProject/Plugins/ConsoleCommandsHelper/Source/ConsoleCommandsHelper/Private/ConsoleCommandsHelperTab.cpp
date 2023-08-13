@@ -124,9 +124,11 @@ void SConsoleCommandsHelperTab::Construct(const FArguments& InArgs)
 				{
 					TSharedPtr<SConsoleCommandsHelperTab> ThisShared = SharedThis(this);
 					FString NewData = "";
-
+					
+					TSharedPtr<SEditableTextBox> NewCommandTextBox;
 					TSharedPtr<SWindow> PopUpWindow =
 									SNew(SWindow)
+									.FocusWhenFirstShown(true)
 									.Title(FText::FromString("Add Command"))
 									.SizingRule(ESizingRule::Autosized)
 									.Content()
@@ -135,7 +137,7 @@ void SConsoleCommandsHelperTab::Construct(const FArguments& InArgs)
 										
 										+SVerticalBox::Slot()
 										[
-											SNew(SEditableTextBox)
+											SAssignNew(NewCommandTextBox, SEditableTextBox)
 											.HintText(FText::FromString("New command"))
 											.OnTextChanged_Lambda([&NewData](const FText& NewText)
 											{
@@ -165,6 +167,7 @@ void SConsoleCommandsHelperTab::Construct(const FArguments& InArgs)
 									];
 					
 					FSlateApplication::Get().AddModalWindow(PopUpWindow.ToSharedRef(), ThisShared.ToSharedRef(), false);
+					FSlateApplication::Get().SetKeyboardFocus(NewCommandTextBox.ToSharedRef());
 
 					return FReply::Handled();
 				}))

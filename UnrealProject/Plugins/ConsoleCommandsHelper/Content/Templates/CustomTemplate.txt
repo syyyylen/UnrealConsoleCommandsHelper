@@ -1,4 +1,0 @@
-stat fps|0.000000|1
-another one|0.300000|0
-and another one|4.000000|1
-yet another|12.200000|1
