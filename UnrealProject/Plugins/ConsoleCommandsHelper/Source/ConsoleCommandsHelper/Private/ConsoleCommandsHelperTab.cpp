@@ -3,6 +3,7 @@
 #include "DesktopPlatformModule.h"
 #include "LevelEditorSubsystem.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Misc/DefaultValueHelper.h"
 #include "Misc/FileHelper.h"
 #include "Widgets/Input/SSpinBox.h"
 #include "Widgets/Layout/SScrollBox.h"
@@ -128,8 +129,38 @@ void SConsoleCommandsHelperTab::Construct(const FArguments& InArgs)
 			[
 				SNew(SButton)
 				.Text(FText::FromString("Save"))
-				.OnClicked(FOnClicked::CreateLambda([]
+				.OnClicked(FOnClicked::CreateLambda([this]
 				{
+					FString PluginDir = FPaths::ProjectPluginsDir() + TEXT("ConsoleCommandsHelper/");
+					FString DefaultPath = PluginDir + TEXT("Content/Templates/");
+					FString FileTypes = TEXT("Template Files (*.txt)|*.txt|All Files (*.*)|*.*");
+					FString DefaultFileName = TEXT("MyTemplate.txt");
+					TArray<FString> OutFilenames;
+
+					bool bOpened = FDesktopPlatformModule::Get()->SaveFileDialog(
+						nullptr,
+						TEXT("Save Template File"),
+						DefaultPath,
+						DefaultFileName,
+						FileTypes,
+						EFileDialogFlags::None,
+						OutFilenames
+					);
+
+					if (bOpened && OutFilenames.Num() > 0)
+					{
+						FString SelectedFilePath = OutFilenames[0];
+						FString FileContents;
+
+						for (const TSharedPtr<FConsoleCommandData>& Command : ConsoleCommandsData)
+						{
+							FString Line = FString::Printf(TEXT("%s|%f|%d"), *Command->Data, Command->Input, Command->Enabled ? 1 : 0);
+							FileContents += Line + TEXT("\n");
+						}
+
+						FFileHelper::SaveStringToFile(FileContents, *SelectedFilePath);
+					}
+					
 					return FReply::Handled();
 				}))
 			]
@@ -142,8 +173,6 @@ void SConsoleCommandsHelperTab::Construct(const FArguments& InArgs)
 				.Text(FText::FromString("Load"))
 				.OnClicked(FOnClicked::CreateLambda([this]
 				{
-					ConsoleCommandsData.Empty();
-
 					FString PluginDir = FPaths::ProjectPluginsDir() + TEXT("ConsoleCommandsHelper/");
 					FString DefaultPath = PluginDir + TEXT("Content/Templates/");
 					FString FileTypes = TEXT("Template Files (*.txt)|*.txt|All Files (*.*)|*.*");
@@ -161,18 +190,16 @@ void SConsoleCommandsHelperTab::Construct(const FArguments& InArgs)
 
 					if (bOpened)
 					{
+						ConsoleCommandsData.Empty();
+						
 						FString FilePath = OutFilenames[0];
 
 						if (!FPaths::FileExists(FilePath))
-						{
 							return FReply::Handled();
-						}
 
 						FString FileContents;
 						if (!FFileHelper::LoadFileToString(FileContents, *FilePath))
-						{
 							return FReply::Handled();
-						}
 
 						TArray<FString> Lines;
 						FileContents.ParseIntoArrayLines(Lines);
@@ -185,12 +212,15 @@ void SConsoleCommandsHelperTab::Construct(const FArguments& InArgs)
 							if (Components.Num() >= 3)
 							{
 								FString Data = Components[0];
-								FString Input = Components[1];
+								FString InputStr = Components[1];
 								FString EnabledStr = Components[2];
 
 								TSharedPtr<FConsoleCommandData> NewCommandData = MakeShareable(new FConsoleCommandData());
 								NewCommandData->Data = Data;
-								NewCommandData->Input =  FCString::Atof(*Input);
+								float Input;
+								if(FDefaultValueHelper::ParseFloat(InputStr, Input))
+									NewCommandData->Input = Input;
+								NewCommandData->Input = Input;
 								NewCommandData->Enabled = FCString::ToBool(*EnabledStr);
 
 								ConsoleCommandsData.Add(NewCommandData);
@@ -266,7 +296,7 @@ TSharedRef<ITableRow> SConsoleCommandsHelperTab::OnGenerateRowForList(TSharedPtr
 			[
 				SNew(SSpinBox<float>)
 				.EnableSlider(false)
-				.Value(0.0f)
+				.Value(Item->Input)
 				.OnValueChanged_Lambda([Item, this](float Value)
 				{
 					Item->Input = Value;

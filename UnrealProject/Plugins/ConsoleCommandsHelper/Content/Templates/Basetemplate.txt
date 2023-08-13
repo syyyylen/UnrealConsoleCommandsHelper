@@ -1,3 +1,1 @@
-stats fps|0.0f|1 
-some other command|1.0f|0
-yet a command|0.0f|1
+stat fps|0.00|1

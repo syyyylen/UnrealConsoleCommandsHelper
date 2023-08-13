@@ -1,0 +1,4 @@
+stat fps|0.0|1
+another one|0.3|0
+and another one|4.0|1
+aaaaaaa|0.2|1
