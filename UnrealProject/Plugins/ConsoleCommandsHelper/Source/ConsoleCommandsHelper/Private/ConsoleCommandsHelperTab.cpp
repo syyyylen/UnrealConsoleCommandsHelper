@@ -197,37 +197,8 @@ void SConsoleCommandsHelperTab::Construct(const FArguments& InArgs)
 						if (!FPaths::FileExists(FilePath))
 							return FReply::Handled();
 
-						FString FileContents;
-						if (!FFileHelper::LoadFileToString(FileContents, *FilePath))
-							return FReply::Handled();
-
-						TArray<FString> Lines;
-						FileContents.ParseIntoArrayLines(Lines);
-
-						for (const FString& Line : Lines)
-						{
-							TArray<FString> Components;
-							Line.ParseIntoArray(Components, TEXT("|"), true);
-
-							if (Components.Num() >= 3)
-							{
-								FString Data = Components[0];
-								FString InputStr = Components[1];
-								FString EnabledStr = Components[2];
-
-								TSharedPtr<FConsoleCommandData> NewCommandData = MakeShareable(new FConsoleCommandData());
-								NewCommandData->Data = Data;
-								float Input;
-								if(FDefaultValueHelper::ParseFloat(InputStr, Input))
-									NewCommandData->Input = Input;
-								NewCommandData->Input = Input;
-								NewCommandData->Enabled = FCString::ToBool(*EnabledStr);
-
-								ConsoleCommandsData.Add(NewCommandData);
-								ListViewWidget->RequestListRefresh();
-							}
-						}
-					}
+						LoadTemplate(FilePath);
+					}	
 					
 					return FReply::Handled();
 				}))
@@ -338,4 +309,38 @@ void SConsoleCommandsHelperTab::AddConsoleCommand(TSharedPtr<SWindow> PopUpWindo
 	}
 													
 	FSlateApplication::Get().RequestDestroyWindow(PopUpWindow.ToSharedRef());
+}
+
+void SConsoleCommandsHelperTab::LoadTemplate(FString FilePath)
+{
+	FString FileContents;
+	if (!FFileHelper::LoadFileToString(FileContents, *FilePath))
+		return;
+
+	TArray<FString> Lines;
+	FileContents.ParseIntoArrayLines(Lines);
+
+	for (const FString& Line : Lines)
+	{
+		TArray<FString> Components;
+		Line.ParseIntoArray(Components, TEXT("|"), true);
+
+		if (Components.Num() >= 3)
+		{
+			FString Data = Components[0];
+			FString InputStr = Components[1];
+			FString EnabledStr = Components[2];
+
+			TSharedPtr<FConsoleCommandData> NewCommandData = MakeShareable(new FConsoleCommandData());
+			NewCommandData->Data = Data;
+			float Input;
+			if(FDefaultValueHelper::ParseFloat(InputStr, Input))
+				NewCommandData->Input = Input;
+			NewCommandData->Input = Input;
+			NewCommandData->Enabled = FCString::ToBool(*EnabledStr);
+
+			ConsoleCommandsData.Add(NewCommandData);
+			ListViewWidget->RequestListRefresh();
+		}
+	}
 }

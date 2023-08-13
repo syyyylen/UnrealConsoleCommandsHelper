@@ -7,7 +7,6 @@
 #include "ToolMenus.h"
 
 static const FName ConsoleCommandsHelperTabName("ConsoleCommandsHelper");
-
 #define LOCTEXT_NAMESPACE "FConsoleCommandsHelperModule"
 
 void FConsoleCommandsHelperModule::StartupModule()
