@@ -33,7 +33,7 @@ void FConsoleCommandsHelperModule::StartupModule()
 		return CommandsDockTab.ToSharedRef();
 	}))
 	.SetDisplayName(FText::FromString("Console Commands"));
-	
+
 	PluginCommands = MakeShareable(new FUICommandList);
 
 	PluginCommands->MapAction(

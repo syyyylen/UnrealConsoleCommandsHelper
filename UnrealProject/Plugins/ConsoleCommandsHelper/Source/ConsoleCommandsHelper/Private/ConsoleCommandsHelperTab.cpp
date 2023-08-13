@@ -16,11 +16,57 @@ void SConsoleCommandsHelperTab::Construct(const FArguments& InArgs)
 	FSlateFontInfo TitleTextFont = FCoreStyle::Get().GetFontStyle(FName("EmbossedText"));
 	TitleTextFont.Size = 20;
 
-	TSharedPtr<FConsoleCommandData> NewCommandData = MakeShareable(new FConsoleCommandData());
-	NewCommandData->Enabled = true;
-	NewCommandData->Data = "stat fps";
-	NewCommandData->Input = 0.0f;
-	ConsoleCommandsData.Add(NewCommandData);
+	FString ConfigFilePath = FPaths::ProjectPluginsDir() + TEXT("ConsoleCommandsHelper.ini");
+	if(FPaths::FileExists(ConfigFilePath))
+	{
+		FString IniContent;
+		FFileHelper::LoadFileToString(IniContent, *ConfigFilePath);
+
+		TArray<FString> Lines;
+		IniContent.ParseIntoArrayLines(Lines);
+
+		TSharedPtr<FConsoleCommandData> CurrentCommand;
+		for (const FString& Line : Lines)
+		{
+			if (Line.StartsWith(TEXT("[")) && Line.EndsWith(TEXT("]")))
+			{
+				CurrentCommand = MakeShared<FConsoleCommandData>();
+				ConsoleCommandsData.Add(CurrentCommand);
+			}
+			else if (CurrentCommand.IsValid())
+			{
+				FString Key, Value;
+				if (Line.Split(TEXT("="), &Key, &Value))
+				{
+					if (Key.Equals(TEXT("Enabled"), ESearchCase::IgnoreCase))
+					{
+						CurrentCommand->Enabled = (Value.Equals(TEXT("True"), ESearchCase::IgnoreCase));
+					}
+					else if (Key.Equals(TEXT("Data"), ESearchCase::IgnoreCase))
+					{
+						CurrentCommand->Data = Value;
+					}
+					else if (Key.Equals(TEXT("Input"), ESearchCase::IgnoreCase))
+					{
+						CurrentCommand->Input = FCString::Atof(*Value);
+					}
+				}
+			}
+		}
+	}
+	else
+	{
+		TSharedPtr<FConsoleCommandData> NewCommandData = MakeShareable(new FConsoleCommandData());
+		NewCommandData->Enabled = true;
+		NewCommandData->Data = "stat fps";
+		NewCommandData->Input = 0.0f;
+		ConsoleCommandsData.Add(NewCommandData);
+	}
+
+	FCoreDelegates::OnPreExit.AddLambda([this]
+	{
+		SaveConsoleCommands();
+	});
 
 	ChildSlot
 	[
@@ -357,6 +403,25 @@ void SConsoleCommandsHelperTab::LoadTemplate(FString FilePath)
 
 			ConsoleCommandsData.Add(NewCommandData);
 			ListViewWidget->RequestListRefresh();
+
+			SaveConsoleCommands();
 		}
 	}
+}
+
+void SConsoleCommandsHelperTab::SaveConsoleCommands()
+{
+	FString IniContent;
+	for (const TSharedPtr<FConsoleCommandData>& Command : ConsoleCommandsData)
+	{
+		FString SectionName = FString::Printf(TEXT("Command_%d"), ConsoleCommandsData.IndexOfByKey(Command));
+		IniContent += FString::Printf(TEXT("[%s]\n"), *SectionName);
+		IniContent += FString::Printf(TEXT("Enabled=%s\n"), Command->Enabled ? TEXT("True") : TEXT("False"));
+		IniContent += FString::Printf(TEXT("Data=%s\n"), *Command->Data);
+		IniContent += FString::Printf(TEXT("Input=%f\n"), Command->Input);
+		IniContent += TEXT("\n");
+	}
+
+	FString ConfigFilePath = FPaths::ProjectPluginsDir() + TEXT("ConsoleCommandsHelper.ini");
+	FFileHelper::SaveStringToFile(IniContent, *ConfigFilePath);
 }
