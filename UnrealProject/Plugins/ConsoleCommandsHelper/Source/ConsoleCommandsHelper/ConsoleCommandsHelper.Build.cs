@@ -45,7 +45,8 @@ public class ConsoleCommandsHelper : ModuleRules
 				"SlateCore", 
 				"UMGEditor", 
 				"Blutility",
-				"LevelEditor"
+				"LevelEditor",
+				"DesktopPlatform"
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

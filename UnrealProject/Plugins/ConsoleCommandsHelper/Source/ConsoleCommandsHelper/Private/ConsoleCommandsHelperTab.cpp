@@ -1,7 +1,9 @@
 ﻿#include "ConsoleCommandsHelperTab.h"
 
+#include "DesktopPlatformModule.h"
 #include "LevelEditorSubsystem.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Misc/FileHelper.h"
 #include "Widgets/Input/SSpinBox.h"
 #include "Widgets/Layout/SScrollBox.h"
 
@@ -56,6 +58,7 @@ void SConsoleCommandsHelperTab::Construct(const FArguments& InArgs)
 						FString Command = CommandData->Data;
 						if(CommandData->Input != 0.0f)
 							Command.Append(FString::SanitizeFloat(CommandData->Input));
+						
 						UKismetSystemLibrary::ExecuteConsoleCommand(World, *Command);
 					}
 					
@@ -137,8 +140,65 @@ void SConsoleCommandsHelperTab::Construct(const FArguments& InArgs)
 			[
 				SNew(SButton)
 				.Text(FText::FromString("Load"))
-				.OnClicked(FOnClicked::CreateLambda([]
+				.OnClicked(FOnClicked::CreateLambda([this]
 				{
+					ConsoleCommandsData.Empty();
+
+					FString PluginDir = FPaths::ProjectPluginsDir() + TEXT("ConsoleCommandsHelper/");
+					FString DefaultPath = PluginDir + TEXT("Content/Templates/");
+					FString FileTypes = TEXT("Template Files (*.txt)|*.txt|All Files (*.*)|*.*");
+					TArray<FString> OutFilenames;
+
+					bool bOpened = FDesktopPlatformModule::Get()->OpenFileDialog(
+						nullptr,
+						TEXT("Select Template File"),
+						DefaultPath,
+						FString(),
+						FileTypes,
+						EFileDialogFlags::None,
+						OutFilenames
+					);
+
+					if (bOpened)
+					{
+						FString FilePath = OutFilenames[0];
+
+						if (!FPaths::FileExists(FilePath))
+						{
+							return FReply::Handled();
+						}
+
+						FString FileContents;
+						if (!FFileHelper::LoadFileToString(FileContents, *FilePath))
+						{
+							return FReply::Handled();
+						}
+
+						TArray<FString> Lines;
+						FileContents.ParseIntoArrayLines(Lines);
+
+						for (const FString& Line : Lines)
+						{
+							TArray<FString> Components;
+							Line.ParseIntoArray(Components, TEXT("|"), true);
+
+							if (Components.Num() >= 3)
+							{
+								FString Data = Components[0];
+								FString Input = Components[1];
+								FString EnabledStr = Components[2];
+
+								TSharedPtr<FConsoleCommandData> NewCommandData = MakeShareable(new FConsoleCommandData());
+								NewCommandData->Data = Data;
+								NewCommandData->Input =  FCString::Atof(*Input);
+								NewCommandData->Enabled = FCString::ToBool(*EnabledStr);
+
+								ConsoleCommandsData.Add(NewCommandData);
+								ListViewWidget->RequestListRefresh();
+							}
+						}
+					}
+					
 					return FReply::Handled();
 				}))
 			]
