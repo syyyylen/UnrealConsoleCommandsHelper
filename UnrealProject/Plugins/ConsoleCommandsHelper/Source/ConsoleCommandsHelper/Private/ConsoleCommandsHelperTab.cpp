@@ -16,7 +16,7 @@ void SConsoleCommandsHelperTab::Construct(const FArguments& InArgs)
 	FSlateFontInfo TitleTextFont = FCoreStyle::Get().GetFontStyle(FName("EmbossedText"));
 	TitleTextFont.Size = 20;
 
-	FString ConfigFilePath = FPaths::ProjectPluginsDir() + TEXT("ConsoleCommandsHelper/ConsoleCommandsHelper.ini");
+	FString ConfigFilePath = FPaths::ProjectPluginsDir() + TEXT("ConsoleCommandsHelper/Config/SavedCommands.ini");
 	if(FPaths::FileExists(ConfigFilePath))
 	{
 		FString IniContent;
@@ -425,6 +425,6 @@ void SConsoleCommandsHelperTab::SaveConsoleCommands()
 		IniContent += TEXT("\n");
 	}
 
-	FString ConfigFilePath = FPaths::ProjectPluginsDir() + TEXT("ConsoleCommandsHelper/ConsoleCommandsHelper.ini");
+	FString ConfigFilePath = FPaths::ProjectPluginsDir() + TEXT("ConsoleCommandsHelper/Config/SavedCommands.ini");
 	FFileHelper::SaveStringToFile(IniContent, *ConfigFilePath);
 }
