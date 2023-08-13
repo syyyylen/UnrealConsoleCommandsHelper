@@ -1,0 +1,51 @@
+<svg id="Logo" xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <style>
+      .cls-1, .cls-6 {
+        fill: #979797;
+      }
+
+      .cls-1, .cls-5, .cls-6 {
+        stroke: #979797;
+      }
+
+      .cls-1, .cls-2 {
+        stroke-linecap: round;
+        stroke-width: 5px;
+      }
+
+      .cls-1, .cls-2, .cls-5, .cls-6 {
+        fill-rule: evenodd;
+      }
+
+      .cls-2 {
+        fill: #333;
+        stroke: #333;
+      }
+
+      .cls-3 {
+        fill: #c2632e;
+      }
+
+      .cls-4 {
+        fill: #47db2a;
+      }
+
+      .cls-5 {
+        fill: none;
+      }
+
+      .cls-5, .cls-6 {
+        stroke-linejoin: round;
+        stroke-width: 20px;
+      }
+    </style>
+  </defs>
+  <path class="cls-1" d="M59.383,40.274h391.7a54,54,0,0,1,54,54V406.737a54,54,0,0,1-54,54H59.383a54,54,0,0,1-54-54V94.274A54,54,0,0,1,59.383,40.274Z"/>
+  <path class="cls-2" d="M62.626,128.118H460.619a17,17,0,0,1,17,17v251.67a17,17,0,0,1-17,17H62.626a17,17,0,0,1-17-17V145.118A17,17,0,0,1,62.626,128.118Z"/>
+  <circle class="cls-3" cx="83.641" cy="87.172" r="19.484"/>
+  <circle class="cls-4" cx="155.234" cy="87.172" r="19.484"/>
+  <path id="Ligne_1" data-name="Ligne 1" class="cls-5" d="M115.976,217.975l1.08-1.049,52.7,54.209-1.08,1.05Z"/>
+  <path id="Ligne_1-2" data-name="Ligne 1" class="cls-5" d="M115.714,325.48l-1.046-1.076L168.7,271.878l1.046,1.076Z"/>
+  <path id="Ligne_2" data-name="Ligne 2" class="cls-6" d="M344.924,321.791v7.238H227.3v-7.238H344.924Z"/>
+</svg>

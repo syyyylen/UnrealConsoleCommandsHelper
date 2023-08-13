@@ -43,7 +43,7 @@ TSharedRef< FSlateStyleSet > FConsoleCommandsHelperStyle::Create()
 	TSharedRef< FSlateStyleSet > Style = MakeShareable(new FSlateStyleSet("ConsoleCommandsHelperStyle"));
 	Style->SetContentRoot(IPluginManager::Get().FindPlugin("ConsoleCommandsHelper")->GetBaseDir() / TEXT("Resources"));
 
-	Style->Set("ConsoleCommandsHelper.PluginAction", new IMAGE_BRUSH_SVG(TEXT("PlaceholderButtonIcon"), Icon20x20));
+	Style->Set("ConsoleCommandsHelper.PluginAction", new IMAGE_BRUSH_SVG(TEXT("ConsoleCommandsHelperLogo"), Icon20x20));
 	return Style;
 }
 
