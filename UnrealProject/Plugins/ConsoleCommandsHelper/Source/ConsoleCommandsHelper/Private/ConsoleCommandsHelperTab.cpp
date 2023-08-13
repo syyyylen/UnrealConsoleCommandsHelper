@@ -2,6 +2,7 @@
 
 #include "DesktopPlatformModule.h"
 #include "LevelEditorSubsystem.h"
+#include "Interfaces/IMainFrameModule.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Misc/DefaultValueHelper.h"
 #include "Misc/FileHelper.h"
@@ -20,7 +21,7 @@ void SConsoleCommandsHelperTab::Construct(const FArguments& InArgs)
 	NewCommandData->Data = "stat fps";
 	NewCommandData->Input = 0.0f;
 	ConsoleCommandsData.Add(NewCommandData);
-	
+
 	ChildSlot
 	[
 		SNew(SVerticalBox)
@@ -136,9 +137,16 @@ void SConsoleCommandsHelperTab::Construct(const FArguments& InArgs)
 					FString FileTypes = TEXT("Template Files (*.txt)|*.txt|All Files (*.*)|*.*");
 					FString DefaultFileName = TEXT("MyTemplate.txt");
 					TArray<FString> OutFilenames;
+					void* ParentWindowWindowHandle = NULL;
+					IMainFrameModule& MainFrameModule = FModuleManager::LoadModuleChecked<IMainFrameModule>(TEXT("MainFrame"));
+					const TSharedPtr<SWindow>& MainFrameParentWindow = MainFrameModule.GetParentWindow();
+					if (MainFrameParentWindow.IsValid() && MainFrameParentWindow->GetNativeWindow().IsValid())
+					{
+						ParentWindowWindowHandle = MainFrameParentWindow->GetNativeWindow()->GetOSWindowHandle();
+					}
 
 					bool bOpened = FDesktopPlatformModule::Get()->SaveFileDialog(
-						nullptr,
+						ParentWindowWindowHandle,
 						TEXT("Save Template File"),
 						DefaultPath,
 						DefaultFileName,
@@ -177,9 +185,17 @@ void SConsoleCommandsHelperTab::Construct(const FArguments& InArgs)
 					FString DefaultPath = PluginDir + TEXT("Content/Templates/");
 					FString FileTypes = TEXT("Template Files (*.txt)|*.txt|All Files (*.*)|*.*");
 					TArray<FString> OutFilenames;
+					void* ParentWindowWindowHandle = NULL;
+					IMainFrameModule& MainFrameModule = FModuleManager::LoadModuleChecked<IMainFrameModule>(TEXT("MainFrame"));
+					const TSharedPtr<SWindow>& MainFrameParentWindow = MainFrameModule.GetParentWindow();
+					if (MainFrameParentWindow.IsValid() && MainFrameParentWindow->GetNativeWindow().IsValid())
+					{
+						ParentWindowWindowHandle = MainFrameParentWindow->GetNativeWindow()->GetOSWindowHandle();
+					}
 
+					
 					bool bOpened = FDesktopPlatformModule::Get()->OpenFileDialog(
-						nullptr,
+						ParentWindowWindowHandle,
 						TEXT("Select Template File"),
 						DefaultPath,
 						FString(),
