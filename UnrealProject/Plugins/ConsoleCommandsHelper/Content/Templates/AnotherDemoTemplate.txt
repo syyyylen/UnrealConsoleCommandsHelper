@@ -1,0 +1,3 @@
+stat fps|1
+Some command|0
+Another command|0

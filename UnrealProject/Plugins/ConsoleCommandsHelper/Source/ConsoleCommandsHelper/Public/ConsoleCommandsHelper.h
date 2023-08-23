@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ConsoleCommandsHelperTab.h"
 #include "Modules/ModuleManager.h"
 
 class FToolBarBuilder;
@@ -25,4 +26,5 @@ private:
 
 	TSharedPtr<class FUICommandList> PluginCommands;
 	TSharedPtr<SDockTab> CommandsDockTab;
+	TSharedPtr<SConsoleCommandsHelperTab> ConsoleCommandsHelperTab;
 };

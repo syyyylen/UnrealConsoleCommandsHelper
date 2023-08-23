@@ -4,9 +4,7 @@
 #include "LevelEditorSubsystem.h"
 #include "Interfaces/IMainFrameModule.h"
 #include "Kismet/KismetSystemLibrary.h"
-#include "Misc/DefaultValueHelper.h"
 #include "Misc/FileHelper.h"
-#include "Widgets/Input/SSpinBox.h"
 #include "Widgets/Layout/SScrollBox.h"
 
 void SConsoleCommandsHelperTab::Construct(const FArguments& InArgs)
@@ -46,10 +44,6 @@ void SConsoleCommandsHelperTab::Construct(const FArguments& InArgs)
 					{
 						CurrentCommand->Data = Value;
 					}
-					else if (Key.Equals(TEXT("Input"), ESearchCase::IgnoreCase))
-					{
-						CurrentCommand->Input = FCString::Atof(*Value);
-					}
 				}
 			}
 		}
@@ -59,7 +53,6 @@ void SConsoleCommandsHelperTab::Construct(const FArguments& InArgs)
 		TSharedPtr<FConsoleCommandData> NewCommandData = MakeShareable(new FConsoleCommandData());
 		NewCommandData->Enabled = true;
 		NewCommandData->Data = "stat fps";
-		NewCommandData->Input = 0.0f;
 		ConsoleCommandsData.Add(NewCommandData);
 	}
 
@@ -103,11 +96,7 @@ void SConsoleCommandsHelperTab::Construct(const FArguments& InArgs)
 						if(!CommandData->Enabled)
 							continue;
 						
-						FString Command = CommandData->Data;
-						if(CommandData->Input != 0.0f)
-							Command.Append(FString::SanitizeFloat(CommandData->Input));
-						
-						UKismetSystemLibrary::ExecuteConsoleCommand(World, *Command);
+						UKismetSystemLibrary::ExecuteConsoleCommand(World, *CommandData->Data);
 					}
 					
 					return FReply::Handled();
@@ -211,7 +200,7 @@ void SConsoleCommandsHelperTab::Construct(const FArguments& InArgs)
 
 						for (const TSharedPtr<FConsoleCommandData>& Command : ConsoleCommandsData)
 						{
-							FString Line = FString::Printf(TEXT("%s|%f|%d"), *Command->Data, Command->Input, Command->Enabled ? 1 : 0);
+							FString Line = FString::Printf(TEXT("%s|%d"), *Command->Data, Command->Enabled ? 1 : 0);
 							FileContents += Line + TEXT("\n");
 						}
 
@@ -320,23 +309,17 @@ TSharedRef<ITableRow> SConsoleCommandsHelperTab::OnGenerateRowForList(TSharedPtr
 			.VAlign(VAlign_Center)
 			.FillWidth(.45f)
 			[
-				SNew(STextBlock)
+				SNew(SEditableTextBox)
 				.Text(FText::FromString(*Item->Data))
-			]
-
-			// Command Input Value
-			+SHorizontalBox::Slot()
-			.HAlign(HAlign_Left)
-			.VAlign(VAlign_Center)
-			.FillWidth(0.15)
-			[
-				SNew(SSpinBox<float>)
-				.EnableSlider(false)
-				.Value(Item->Input)
-				.OnValueChanged_Lambda([Item, this](float Value)
+				.OnTextChanged_Lambda([Item, this](const FText& NewText)
 				{
-					Item->Input = Value;
-			 		ListViewWidget->RequestListRefresh();
+					Item->Data = NewText.ToString();
+					ListViewWidget->RequestListRefresh();
+				})
+				.OnTextCommitted_Lambda([Item, this] (const FText& NewText, ETextCommit::Type CommitType)
+				{
+					Item->Data = NewText.ToString();
+					ListViewWidget->RequestListRefresh();
 				})
 			]
 			
@@ -366,7 +349,6 @@ void SConsoleCommandsHelperTab::AddConsoleCommand(TSharedPtr<SWindow> PopUpWindo
 	{
 		TSharedPtr<FConsoleCommandData> NewCommandData = MakeShareable(new FConsoleCommandData());
 		NewCommandData->Data = NewData;
-		NewCommandData->Input = 0.0f;
 		NewCommandData->Enabled = true;
 													
 		ConsoleCommandsData.Add(NewCommandData);
@@ -390,18 +372,13 @@ void SConsoleCommandsHelperTab::LoadTemplate(FString FilePath)
 		TArray<FString> Components;
 		Line.ParseIntoArray(Components, TEXT("|"), true);
 
-		if (Components.Num() >= 3)
+		if (Components.Num() >= 2)
 		{
 			FString Data = Components[0];
-			FString InputStr = Components[1];
-			FString EnabledStr = Components[2];
+			FString EnabledStr = Components[1];
 
 			TSharedPtr<FConsoleCommandData> NewCommandData = MakeShareable(new FConsoleCommandData());
 			NewCommandData->Data = Data;
-			float Input;
-			if(FDefaultValueHelper::ParseFloat(InputStr, Input))
-				NewCommandData->Input = Input;
-			NewCommandData->Input = Input;
 			NewCommandData->Enabled = FCString::ToBool(*EnabledStr);
 
 			ConsoleCommandsData.Add(NewCommandData);
@@ -421,7 +398,6 @@ void SConsoleCommandsHelperTab::SaveConsoleCommands()
 		IniContent += FString::Printf(TEXT("[%s]\n"), *SectionName);
 		IniContent += FString::Printf(TEXT("Enabled=%s\n"), Command->Enabled ? TEXT("True") : TEXT("False"));
 		IniContent += FString::Printf(TEXT("Data=%s\n"), *Command->Data);
-		IniContent += FString::Printf(TEXT("Input=%f\n"), Command->Input);
 		IniContent += TEXT("\n");
 	}
 

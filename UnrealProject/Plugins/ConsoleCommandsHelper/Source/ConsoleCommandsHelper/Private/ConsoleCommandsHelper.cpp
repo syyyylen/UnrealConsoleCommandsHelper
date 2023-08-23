@@ -21,11 +21,17 @@ void FConsoleCommandsHelperModule::StartupModule()
 	{
 		CommandsDockTab = SNew(SDockTab).TabRole(ETabRole::NomadTab)
 		[
-			SNew(SConsoleCommandsHelperTab)
+			SAssignNew(ConsoleCommandsHelperTab, SConsoleCommandsHelperTab)
 		];
 
 		CommandsDockTab->SetOnTabClosed(SDockTab::FOnTabClosedCallback::CreateLambda([this](TSharedRef<SDockTab> TabToClose)
 		{
+			if(ConsoleCommandsHelperTab.IsValid())
+			{
+				ConsoleCommandsHelperTab->SaveConsoleCommands();
+				ConsoleCommandsHelperTab.Reset();
+			}
+			
 			if(CommandsDockTab.IsValid())
 				CommandsDockTab.Reset();
 		}));
