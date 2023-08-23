@@ -307,7 +307,7 @@ TSharedRef<ITableRow> SConsoleCommandsHelperTab::OnGenerateRowForList(TSharedPtr
 			+SHorizontalBox::Slot()
 			.HAlign(HAlign_Left)
 			.VAlign(VAlign_Center)
-			.FillWidth(.45f)
+			.FillWidth(.5f)
 			[
 				SNew(SEditableTextBox)
 				.Text(FText::FromString(*Item->Data))
@@ -325,9 +325,9 @@ TSharedRef<ITableRow> SConsoleCommandsHelperTab::OnGenerateRowForList(TSharedPtr
 			
 			// Remove the command from the list
 			+SHorizontalBox::Slot()
-			.HAlign(HAlign_Left)
+			.HAlign(HAlign_Right)
 			.VAlign(VAlign_Center)
-			.FillWidth(0.25f)
+			.FillWidth(0.2f)
 			[
 				SNew(SButton)
 				.Text(FText::FromString("Remove"))
