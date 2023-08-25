@@ -56,11 +56,6 @@ void SConsoleCommandsHelperTab::Construct(const FArguments& InArgs)
 		ConsoleCommandsData.Add(NewCommandData);
 	}
 
-	FCoreDelegates::OnPreExit.AddLambda([this]
-	{
-		SaveConsoleCommands();
-	});
-
 	ChildSlot
 	[
 		SNew(SVerticalBox)
@@ -297,9 +292,10 @@ TSharedRef<ITableRow> SConsoleCommandsHelperTab::OnGenerateRowForList(TSharedPtr
 					Item->Enabled ? CheckBoxState = ECheckBoxState::Checked : CheckBoxState = ECheckBoxState::Unchecked;
 					return CheckBoxState;
 				})
-				.OnCheckStateChanged_Lambda([Item](ECheckBoxState CheckBoxState)
+				.OnCheckStateChanged_Lambda([Item, this](ECheckBoxState CheckBoxState)
 				{
 					Item->Enabled = CheckBoxState == ECheckBoxState::Checked;
+					SaveConsoleCommands();
 				})
 			]
 
@@ -315,11 +311,13 @@ TSharedRef<ITableRow> SConsoleCommandsHelperTab::OnGenerateRowForList(TSharedPtr
 				{
 					Item->Data = NewText.ToString();
 					ListViewWidget->RequestListRefresh();
+					SaveConsoleCommands();
 				})
 				.OnTextCommitted_Lambda([Item, this] (const FText& NewText, ETextCommit::Type CommitType)
 				{
 					Item->Data = NewText.ToString();
 					ListViewWidget->RequestListRefresh();
+					SaveConsoleCommands();
 				})
 			]
 			
@@ -337,6 +335,7 @@ TSharedRef<ITableRow> SConsoleCommandsHelperTab::OnGenerateRowForList(TSharedPtr
 						ConsoleCommandsData.Remove(Item);
 
 					ListViewWidget->RequestListRefresh();
+					SaveConsoleCommands();
 					return FReply::Handled();
 				}))
 			]
@@ -353,6 +352,7 @@ void SConsoleCommandsHelperTab::AddConsoleCommand(TSharedPtr<SWindow> PopUpWindo
 													
 		ConsoleCommandsData.Add(NewCommandData);
 		ListViewWidget->RequestListRefresh();
+		SaveConsoleCommands();
 	}
 													
 	FSlateApplication::Get().RequestDestroyWindow(PopUpWindow.ToSharedRef());
@@ -383,7 +383,6 @@ void SConsoleCommandsHelperTab::LoadTemplate(FString FilePath)
 
 			ConsoleCommandsData.Add(NewCommandData);
 			ListViewWidget->RequestListRefresh();
-
 			SaveConsoleCommands();
 		}
 	}
