@@ -4,7 +4,7 @@
 	"VersionName": "1.0",
 	"FriendlyName": "ConsoleCommandsHelper",
 	"Description": "A simple plugin to facilitate recurrent console commands usages",
-	"Category": "Other",
+	"Category": "Editor",
 	"CreatedBy": "Jules Vannier",
 	"CreatedByURL": "",
 	"DocsURL": "https://github.com/syyyylen/UnrealConsoleCommandsHelper/wiki",
