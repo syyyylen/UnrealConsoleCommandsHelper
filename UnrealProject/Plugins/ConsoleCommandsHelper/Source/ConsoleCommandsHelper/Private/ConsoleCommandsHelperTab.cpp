@@ -84,7 +84,7 @@ void SConsoleCommandsHelperTab::Construct(const FArguments& InArgs)
 			.Padding(5.0f)
 			[
 				SNew(SButton)
-				.Text(FText::FromString("Execute"))
+				.Text(FText::FromString("Execute all"))
 				.OnClicked(FOnClicked::CreateLambda([this]
 				{
 					UWorld* World = GEditor->GetEditorSubsystem<ULevelEditorSubsystem>()->GetWorld();
@@ -321,6 +321,22 @@ TSharedRef<ITableRow> SConsoleCommandsHelperTab::OnGenerateRowForList(TSharedPtr
 					ListViewWidget->RequestListRefresh();
 					SaveConsoleCommands();
 				})
+			]
+
+			// Exec this command only
+			+SHorizontalBox::Slot()
+			.HAlign(HAlign_Right)
+			.VAlign(VAlign_Center)
+			.FillWidth(0.2f)
+			[
+				SNew(SButton)
+				.Text(FText::FromString("Execute"))
+				.OnClicked(FOnClicked::CreateLambda([Item, this]
+				{
+					UWorld* World = GEditor->GetEditorSubsystem<ULevelEditorSubsystem>()->GetWorld();
+					UKismetSystemLibrary::ExecuteConsoleCommand(World, *Item->Data);
+					return FReply::Handled();
+				}))
 			]
 			
 			// Remove the command from the list
