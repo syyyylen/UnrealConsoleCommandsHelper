@@ -1,4 +1,6 @@
-﻿#pragma once
+﻿// Copyright 2023 - Jules Vannier
+
+#pragma once
 
 #include "CoreMinimal.h"
 #include "Widgets/SCompoundWidget.h"

@@ -1,4 +1,6 @@
-﻿#include "ConsoleCommandsHelperTab.h"
+﻿// Copyright 2023 - Jules Vannier
+
+#include "ConsoleCommandsHelperTab.h"
 
 #include "DesktopPlatformModule.h"
 #include "LevelEditorSubsystem.h"

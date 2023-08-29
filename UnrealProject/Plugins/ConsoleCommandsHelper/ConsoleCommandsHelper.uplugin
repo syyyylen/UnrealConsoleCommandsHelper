@@ -7,8 +7,8 @@
 	"Category": "Other",
 	"CreatedBy": "Jules Vannier",
 	"CreatedByURL": "",
-	"DocsURL": "",
-	"MarketplaceURL": "",
+	"DocsURL": "https://github.com/syyyylen/UnrealConsoleCommandsHelper/wiki",
+	"MarketplaceURL": "com.epicgames.launcher:\n//ue/marketplace/product/222ba159a5424c1eb0c0af6e60a58854",
 	"SupportURL": "",
 	"CanContainContent": true,
 	"IsBetaVersion": false,
@@ -18,7 +18,10 @@
 		{
 			"Name": "ConsoleCommandsHelper",
 			"Type": "Editor",
-			"LoadingPhase": "Default"
+			"LoadingPhase": "Default",
+			"PlatformAllowList": [
+				"Win64"
+			]
 		}
 	]
 }
